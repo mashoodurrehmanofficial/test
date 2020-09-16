@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block 'mainbody' %}
+
+  
+    <!-- SECTION - Main Section -->
+         
+         
+                <div class="z-depth-1 row grey-text text-darken-3" style="padding: 1px;" > <br>
+                    <form class="col s12 m6 l6" style="padding:0px 25px;">
+                        <h3 class=""> Pythonmafia</h3>
+                            <!-- <p><i>The aim of this site is to teach newbies <b>Django</b> in a new way</i> by 
+                            making them aware of every bit of <b>Django documentation</b> and providing them a way to
+                            solve some most common to middle level problems in their project. -->
+                            </p>
+
+                    <h5>Stay connected. Never miss updates.</h5>
+
+                    <div class="input-field">
+                        <input id="email" type="text" class="validate">
+                        <label for="email">Your email</label>
+                    </div>
+                    <button class="btn green" style="text-transform: none;" type="submit">Send me notifications</button> <br><br>
+                    </form>
+                    <div class="col s12 m6 l6">
+                        
+                        {% include "partials/root/frontimage.html" %}
+                    </div>
+
+
+                </div>
+
+
+
+
+                <div class="z-depth-2" style="padding: 20px;">
+                     <div class="row">
+                         
+
+                         <div class="col m4 l4 s12" >
+                             <div class="z-depth-2" style="height: 320px;padding:1px 10px; border-radius: 10px;background: linear-gradient(to right, #ff9966, #ff5e62);color: floralwhite;" >
+                                 <h3 style="text-align: center;">Python How To</h3> 
+                                 <p>
+                                    In this Section we will be going through some awesome pythonical scripts 
+                                    used at various areas.
+                                 </p>
+                             </div>
+                         </div> 
+
+                         
+                         <div class="col m4 l4 s12" >
+                             <div class="z-depth-2" style="height: 320px;padding:1px 10px; border-radius: 10px;background: linear-gradient(to right, #ff9966, #ff5e62);color: floralwhite;" >
+                                 <h3 style="text-align: center;">Django + Ajax</h3> 
+                                 <p>
+                                    This section contains tutorials about implementation of some common operations on your 
+                                    <b>django site powered by Ajax</b>.
+                                 </p>
+                             </div>
+                         </div> 
+
+                         
+
+                         <div class="col m4 l4 s12">
+                             <div class="z-depth-2" style="height: 320px;padding:1px 10px; border-radius: 10px;background: linear-gradient(to right, #ff9966, #ff5e62);color: floralwhite;" >
+                                 <h3 style="text-align: center;">Django How To</h3> 
+                                 <p>
+                                    This section contains tutorials about implementation of different operations in your project
+                                    which are pretty simple but beginners find them difficult. This section will help them a lot.</b>.
+                                 </p>
+                             </div>
+                         </div> 
+
+                      
+                      
+
+
+
+
+
+
+
+
+                     </div>
+
+
+                    <!-- <div class="z-depth-1" style="border-radius: 20px ;background: linear-gradient(to right, #ff9966, #ff5e62);width: 190px;height: 100px;">
+                        <h4 style="text-align: center;" class="grey-text text-lighten-3">start</h4>
+                    </div> -->
+                    
+                </div>
+
+
+
+
+
+
+                
+        
+          
+        <!-- [model.__name__ for model in apps.get_models()] -->
+        <!-- [ m._meta.db_table for c in apps.get_app_configs() for m in c.get_models() ] -->
+ 
+{% block 'js' %}
+<script>  
+</script>
+{% endblock 'js' %}
+{% endblock 'mainbody' %}

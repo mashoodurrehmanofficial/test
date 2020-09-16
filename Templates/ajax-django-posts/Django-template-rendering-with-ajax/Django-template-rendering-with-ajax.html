@@ -1,0 +1,159 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that.
+</p>
+<h4 class="grey-text text-darken-3"><b>Basic Logic</b></h4>
+<p>
+    Logic is very simple. We are aiming to update/render our html components or may be entire file using
+    AJAX in real time. It all depends upon you. But after this tutorial you will be able to do 
+    both kinds of rendering(component based/entire file) in real time.
+</p>
+ 
+<h4 class="grey-text text-darken-3"><b>Html File</b></h4>
+<p>
+    In our HTML file we consider that we have three buttons. These three buttons have different ids and
+    innerHTML. We will implement such a logic that when we click a specific button then <b>HTML FILE should
+    be rendered based upon the id of that specific button in REAL TIME</b>. <br>
+    <span class="blue-text"><b>Note: </b></span> Don't forget to import <b>Jquery.js</b>
+</p>
+        
+<!-- CODE -->   
+<pre><code class="language-markup">&lt;!-- HTML file will be rendered differently based on button click --&gt;  
+&lt;button id="China" name="loader"&gt;China&lt;/button&gt;
+&lt;button id="England" name="loader"&gt;England&lt;/button&gt;
+&lt;button id="France" name="loader"&gt;France&lt;/button&gt;
+
+&lt;br&gt; 
+&lt;!-- This all will be updated after clicking the button in real time --&gt;
+&lt;div id="container"&gt;
+    &lt;h2 id="country_name"&gt;Country name: &#123&#123country_name&#125&#125&lt;/h2&gt;
+    &lt;h3 id="intro"&gt;Intro: &#123&#123intro&#125&#125&lt;/h3&gt;
+    &lt;h3 id="capital"&gt;Capital: &#123&#123capital&#125&#125&lt;/h3&gt; 
+    FLAG:  &lt;br&gt;
+    &lt;img id="flag" src="" alt=""&gt;
+&lt;/div&gt;
+&lt;script&gt;
+// Here Ajax will take place.
+&lt;/script&gt;</code></pre>   
+        
+<h4 class="grey-text text-darken-3"><b>Implementing Ajax</b></h4>
+<p>
+    When we click the button then<b> 'getdata/${this.id}' </b> url is triggered. <br>
+    <span class="blue-text"><b>Note: </b></span> <b>html function</b> replaces innerHTML of component. <br>
+    <span class="blue-text"><b>Note: </b></span> <b>attr function</b> replaces src of image. <br>
+    <span class="blue-text"><b>Note: </b></span> All the magic is done by <b>load()</b> function.
+    which reloads the component in real time after getting response from server.
+</p> 
+<!-- CODE -->       
+<pre ><code class="language-js">$('button[name="loader"]').click(function(e){
+    $.ajax({
+        url: `getdata/${this.id}`,
+        success: function(data){
+            // Here we will update components after getting data from server.
+            $('#country_name').html(data.data.country_name)
+            $('#intro').html(data.data.intro)
+            $('#capital').html(data.data.capital) 
+            $('#flag').attr('src', data.data.flag)
+            $('#container').load()
+        }
+    })
+})</code></pre> 
+        
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    This file contains the url <b>getdata/&lt;str:country_name&gt;</b> which is triggered by Ajax 
+    and call <b>getdata</b> from myapp.views
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from myapp import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Follwing url is triggered when we call getdata/${this.id} from Ajax
+    path('getdata/&lt;str:country_name&gt;', views.getdata, name='getdata')
+]
+</code></pre>
+        
+        
+        
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+    Views.py contains the <b>getdata function</b> which accepts an argument <b>country</b>
+    provided by user
+</p> 
+        
+<!-- CODE -->      
+<pre><code class="language-python">from django.http import JsonResponse
+def getdata(request, country_name):     
+    country_data = {
+        
+        'China':{
+            'country_name': country_name,
+            'intro': 'China is located in Asia',
+            'capital': 'Beijing',
+            'flag': 'https://www.countryflags.io/cn/flat/64.png' 
+        },
+        'England':{
+            'country_name': country_name,
+            'intro': 'England is not located in Europe',
+            'capital': 'London',
+            'flag': 'https://www.countryflags.io/gb/flat/64.png' 
+        },
+        'France':{
+            'country_name': country_name,
+            'intro': 'France is located in Europe',
+            'capital': 'Paris',
+            'flag': 'https://www.countryflags.io/fr/flat/64.png' 
+        },
+    }
+    return JsonResponse({'data':country_data[country_name]})
+</code></pre> 
+
+
+<!-- SECTION LIVE DEMO -->
+    <h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+    <p>
+        Click on any button to get a demo in real time.
+    </p> 
+    <div class="grey lighten-1 " style="padding: 20px;border-radius: 10px;">
+        <button style="text-transform: none;border-radius: 30px;" class="btn white grey-text text-darken-2" id="China" name="loader">China</button>
+        <button style="text-transform: none;border-radius: 30px;" class="btn white grey-text text-darken-2" id="England" name="loader">England</button>
+        <button style="text-transform: none;border-radius: 30px;" class="btn white grey-text text-darken-2" id="France" name="loader">France</button>
+        <br> 
+        <!-- This all will be updated after clicking the button in real time -->
+        <div id="container">
+            <h4 id="country_name">Country name: {{country_name}}</h4>
+            <h6 id="intro">Intro: {{intro}}</h6>
+            <h6 id="capital">Capital: {{capital}}</h6> 
+            FLAG:  <br>
+            <img id="flag" src="" alt="">
+        </div> 
+    </div>
+ 
+
+
+
+
+{% block 'js' %}
+<script>  
+$('button[name="loader"]').click(function(e){
+    $.ajax({
+        url: `getdata/${this.id}`,
+        success: function(data){
+            // Here we will update components after getting data from server.
+            $('#country_name').html(data.data.country_name)
+            $('#intro').html(data.data.intro)
+            $('#capital').html(data.data.capital) 
+            $('#flag').attr('src', data.data.flag)
+            $('#container').load()
+        }
+    })
+})
+ 
+</script>
+{% endblock 'js' %}
+{% endblock 'engine'%}

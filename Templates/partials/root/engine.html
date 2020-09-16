@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block 'mainbody' %}
+
+<!-- RENDERER  -->
+<!-- RENDERER  -->
+<!-- RENDERER  -->
+
+    <!-- SECTION - Sidebar for medium and large screens -->
+    {% include "partials/root/sidebar.html" %}
+    
+    <!-- SECTION - Main Section -->
+    <main> 
+        <div class="row" style="padding-top: 0px !important;">   
+            <div id="col1" class="col s12 m9 l9 " > <br>
+                <div class="grey lighten-1" style="height: 100px;width: 100%;">ADS</div>
+                {% include "partials/root/next-previous-buttons.html" %}
+                <h3 style="font-weight: bold;" class="text ">{{article_heading}}</h3>
+
+                <!-- Integral Article -->
+                <!-- START FROM H4  -->
+                <!-- PAGE TITLE -->
+                
+                {% block 'engine' %} 
+                {% endblock 'engine' %}
+                
+
+            </div>
+            <!-- SECTION AD DISPLAY -->  
+            {% include "partials/root/ADS.html" %}
+        </div> 
+    </main> 
+
+
+
+    
+{% endblock 'mainbody' %}
+
+
+
+

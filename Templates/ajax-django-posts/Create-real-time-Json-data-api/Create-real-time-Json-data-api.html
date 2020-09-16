@@ -1,0 +1,114 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that.
+</p>
+<h4 class="grey-text text-darken-3"><b>Basic Logic</b></h4>
+<p>
+    Logic behind is very simple. We just want to create our own <b>Json-based data api</b>. in django.
+    We will send a request to <b>django-server</b> and get an <b>response in real-time.</b>
+</p> 
+<h4 class="grey-text text-darken-3"><b>Html File</b></h4>
+<p>
+    Html file has a loader button with <b>id="loader"</b> and a <b>p tag</b>
+    for handling responsed data and an jquery Ajax block.
+</p>
+        
+<!-- CODE -->
+<pre><code class="language-markup">&lt;p id="fetched_data"&gt; &lt;/p&gt;
+&lt;button id="loader"&gt; Load More &lt;/button&gt;
+&lt;script&gt; 
+
+&lt;!-- Here Ajax will take place --&gt; 
+
+&lt;/script&gt;</code></pre>  
+        
+<!-- CODE -->
+<h4 class="grey-text text-darken-3"><b>Implementing Ajax</b></h4>
+<p>
+    On clicking the button innerHTML of button will be changed to <b>Loading ...</b> and
+    an Ajax call with url <b>getjsondata/</b> is triggered. The response can be anything you want in
+    JSON format. For now we will return an <b>uuid</b>.
+</p> 
+            
+<!-- CODE -->    
+<pre ><code class="language-js">$('#loader').click(function(e){ 
+    $.ajax({
+        url: 'getjsondata/',
+        success: function(data){   
+            $('#fetched_data').html(data.uuid) 
+        }
+    })
+})
+</code></pre> 
+        
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    This file contains the url <b>getjsondata/</b> which is triggered by Ajax 
+    and call <b>getjsondata</b> from myapp.views
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from myapp import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Follwing url is triggered when we call getjsondata/ from Ajax
+    path('getjsondata/', views.getjsondata, name='getjsondata')
+]
+</code></pre>
+        
+        
+        
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+    Views.py contains the <b>getjsondata function</b>   <br>
+    <span class="blue-text"><b>Note: </b></span> Here we can return what ever we want. For example
+    you can load data from Database or call another api. For now we will return an <b>uuid.</b>
+</p> 
+        
+<!-- CODE -->
+<pre><code class="language-python">from django.http import JsonResponse
+def getjsondata(request):
+
+    # If you want to load data from database then here is the cdoe :)
+    # data = MODEL_NAME.objects.all()
+
+    import uuid
+    data = uuid.uuid4() 
+    return JsonResponse({'uuid':data})
+</code></pre>
+ 
+
+<!-- SECTION LIVE DEMO -->
+<h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+<h5 id="text"></h5>
+
+
+<button id="loader" style="text-transform: none;border-radius: 30px;" class="btn white grey-text text-darken-2">
+<b>Load Json data  </b>        
+</button>
+<h4 id="fetched_data"></h4>
+ 
+ 
+
+
+{% block 'js' %}
+<script>   
+$('#loader').click(function(e){ 
+    
+    $.ajax({
+        url: 'https://httpbin.org/uuid',
+        success: function(data){    
+            $('#fetched_data').html(data.uuid) 
+        }
+    })
+})
+</script>
+{% endblock 'js' %} 
+{% endblock 'engine'%}
+
+
+

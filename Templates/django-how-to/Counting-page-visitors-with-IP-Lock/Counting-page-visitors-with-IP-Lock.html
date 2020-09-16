@@ -1,0 +1,216 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%} 
+ 
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that. <b>Let us Consider we have ...</b>
+</p>
+ 
+<h4 class="grey-text text-darken-3"><b>Logic Behind</b></h4>
+<p>
+    We will build an algorithm which will lock the user IP for a specified period of time for counting
+    page visitors <b>so that fake traffic can be detected.</b>
+</p>
+ 
+<h4 class="grey-text text-darken-3"><b>Models.py</b></h4>
+<p>
+    In our model.py we consider that we have a <b>Post Model</b> whose posts are triggered with help of
+    url pattern. And an IPTracker which will implement checkings on given IP with coressponding Post.
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">from django.db import models     
+class Post(models.Model):
+    title = models.CharField(max_length=100)
+    page_views = models.IntegerField(default=0)
+    def __str__(self):
+        return self.title
+         
+class IpTracker(models.Model):
+    ip = models.GenericIPAddressField()
+    time = models.IntegerField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.ip
+</code></pre> 
+
+ 
+<p>
+    In your <b>Terminal</b> run these commands to make migrations and store data in your Post model.
+</p>    
+
+<!-- CODE -->
+<pre><code class="language-python">> py manage.py makemigrations</code></pre>
+<pre><code class="language-python">> py manage.py migrate</code></pre>
+<pre><code class="language-python">> py manage.py shell</code></pre>
+<p>I am using <b>SHELL</b> for storing data. You can use any approach you want.</p>  
+   
+<!-- CODE -->
+<pre><code class="language-python">> from myapp.models import Post
+> Post(title='This_is_article_1').save()
+> Post(title='This_is_article_2').save()
+> Post(title='This_is_article_3').save()
+> Post(title='This_is_article_4').save()
+> Post(title='This_is_article_5').save() 
+</code></pre>
+
+<p>Now we have successfully stored four records in our Post model.</p>    
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    In urls.py we have two paths One for index page and second for providing requested post and incrementing
+    its views. 
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from django.urls import path 
+from .views import *
+urlpatterns = [
+    path('', index, name='index'),
+    path('posts/&lt;str:title&gt;/', fetchpost, name='fetchpost'),
+] 
+</code></pre>
+ 
+      
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p> 
+    Views.py contains three functions. <b>index</b> function renders <b>index.html</b> and <b>fetchpost</b>
+    function provides requested post and incrementing its views and an <b>stateanalyzer function</b> which
+    will perform required checking. <br>
+    <span class="blue-text"><b>Note: </b></span> <b>fetchpost function</b> takes an argument which in this
+    case is <b>title of post</b> and it will be provided either in urlbar or by an hyperlink tag. <br>
+    <span class="blue-text"><b>Note: </b></span> <b>stateanalyzer function</b> will take <b>request, title of post
+    and time limit in seconds</b> as arguments.
+
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">from django.shortcuts import render 
+from .models import *
+from django.http import JsonResponse
+import time
+
+def index(request):   
+    posts = Post.objects.all()
+    return render(request, 'index.html', {'posts':posts})
+
+def stateanalyzer(request,title, limit):
+    # This section will find the visitor's public IP Address.
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for: 
+        ip = x_forwarded_for.split(',')[0]
+    else: 
+        ip = request.META.get('REMOTE_ADDR')
+
+    
+    # This will delete extra records who have passed their restricting time limit
+    z = [x.delete() for x in IpTracker.objects.all() if (time.time()-x.time)>=limit]
+    # This will prohibit duplication of records having same IP with same POST.
+    if IpTracker.objects.filter(ip=ip,post=Post.objects.get(title=title)):
+        pass
+    # This will create record of new visitor and will not peroform checking.
+    elif not IpTracker.objects.filter(ip=ip,post=Post.objects.get(title=title)):
+        IpTracker(ip=ip,time=time.time(),post=Post.objects.get(title=title)).save()
+        return True
+    # This section will check either visitor is visiting page frequently
+    # within time limit or not.
+    located_ip = IpTracker.objects.get(ip=ip,post=Post.objects.get(title=title))
+    submit_time = IpTracker.objects.get(ip=ip,post__title=title).time 
+    currnt_time = time.time()
+    difference = currnt_time-submit_time
+    if difference>limit:
+        located_ip.time=time.time()
+        located_ip.save()
+        return True
+    else:
+        return False    
+
+        
+def fetchpost(request,title):   
+    posts = Post.objects.all()  
+    requested_post = Post.objects.get(title=title)  
+    # Here if test is passed then page_views will be incremented else not.
+    # Here we will pass time limit in seconds.
+    if stateanalyzer(request,title, 30):
+        requested_post.page_views = requested_post.page_views + 1
+        requested_post.save()
+    context = {
+        'title':requested_post.title,
+        'views':requested_post.page_views
+    }
+    return JsonResponse(context)
+</code></pre>     
+
+            <!-- SECTION LIVE DEMO -->
+            <h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+            <p>Just check your <b>IP Locker</b> by changing page title and IP again and again. <br> We have set time
+            limit of <b>30 seconds</b>
+            
+            </p> 
+
+            <div class="grey lighten-2" style="padding: 20px;">
+
+            <div class="row"> 
+                <div class="input-field col s12 m6 l6">
+                    <select id="page">
+                      <option value="" disabled selected>Select your page</option>
+                      <option value="This_is_article_1">This_is_article_1</option>    
+                      <option value="This_is_article_2">This_is_article_2</option>    
+                      <option value="This_is_article_3">This_is_article_3</option>    
+                      <option value="This_is_article_4">This_is_article_4</option>
+                    </select>
+                    <label>Select Page for making request</label>
+                  </div>
+    
+                <div class="input-field col s12 m6 l6">
+                    <select id="ip">
+                      <option value="" disabled selected>Select your IP</option>
+                      <option value="18.138.92.188">18.138.92.188</option>
+                      <option value="18.138.160.189">18.138.160.189</option>
+                      <option value="75.2.32.100">75.2.32.100</option>
+                      <option value="99.83.193.32">99.83.193.32</option>
+                    </select>
+                    <label>Select IP</label>
+                  </div>
+            </div>
+
+            <button id="sendrequest" style="text-transform: none;border-radius: 30px;" class="btn white grey-text text-darken-2">
+                <b>Make a request and fetch results</b>   
+            </button>
+            <h2 id="respost"></h2>
+            <h2 id="resviews"></h2>
+            </div>
+             
+            
+   
+    
+  
+ 
+{% block 'js' %}
+<script>  
+
+
+
+$('#sendrequest').click(function(e){
+    
+  e.preventDefault()
+  post = $('#page option:selected').text()
+  ip = $('#ip option:selected').text()
+
+  $.ajax({
+    url: `test/post/${ip}/${post}`,
+    success: function(data){
+      $('#respost').html(data.title)
+      $('#resviews').html(data.views)
+      
+    }
+  })
+})
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems, {FormSelect:true});
+  });
+</script>
+{% endblock 'js' %}
+{% endblock 'engine' %}

@@ -1,0 +1,121 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%} 
+    
+<h4 class="grey-text text-darken-3"><b>Three Lines</b></h4> 
+
+<!-- CODE -->
+<pre><code class="language-python">def fetchpost(request,title):   
+
+    # Here we will fetch the requested_post and increment it's views.
+    requested_post = model_name.objects.get(title=title)  
+    requested_post.page_views = requested_post.page_views + 1
+    requested_post.save()
+    # Now page views have been incremented.
+    return render(request, "your page")
+</code></pre> 
+ 
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that. <b>Let us Consider we have ...</b>
+</p> 
+<h4 class="grey-text text-darken-3"><b>Models.py</b></h4>
+<p>
+    In our model.py we consider that we have a <b>Post Model</b> whose posts are triggered with help of
+    url pattern.
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">from django.db import models    
+class Post(models.Model):
+    title = models.CharField(max_length=100)
+    page_views = models.IntegerField(default=0)
+    def __str__(self):
+        return self.title
+</code></pre> 
+
+ 
+<p>
+    In your <b>Terminal</b> run these commands to make migrations and store data in your Post model.
+</p>    
+
+<!-- CODE -->
+<pre><code class="language-python">> py manage.py makemigrations</code></pre>
+<pre><code class="language-python">> py manage.py migrate</code></pre>
+<pre><code class="language-python">> py manage.py shell</code></pre>
+
+
+<p>I am using <b>SHELL</b> for storing data. You can use any approach you want.</p>  
+    
+<!-- CODE -->
+<pre><code class="language-python">> from myapp.models import Post
+> Post(title='This_is_article_1').save()
+> Post(title='This_is_article_2').save()
+> Post(title='This_is_article_3').save()
+> Post(title='This_is_article_4').save()
+> Post(title='This_is_article_5').save() 
+</code></pre>
+
+<p>Now we have successfully stored four records in our Post model.</p>  
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    In urls.py we have two paths One for index page and second for providing requested post and incrementing
+    its views. 
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">from django.urls import path 
+from .views import *
+urlpatterns = [
+    path('', index, name='index'),
+    path('posts/&lt;str:title&gt;/', fetchpost, name='fetchpost'),
+] 
+</code></pre>
+ 
+  
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p> 
+    Views.py contains two functions. <b>index</b> function renders <b>index.html</b> and <b>fetchpost</b>
+    function provides requested post and incrementing its views. <br>
+    <span class="blue-text"><b>Note: </b></span> <b>fetchpost function</b> takes an argument which in this
+    case is <b>title of post</b> and it will be provided either in urlbar or by an hyperlink tag.
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from django.shortcuts import render 
+from .models import *
+
+def index(request):   
+    posts = Post.objects.all()
+    return render(request, 'index.html', {'posts':posts})
+
+def fetchpost(request,title):  
+    posts = Post.objects.all() 
+    # Here we will fetch the requested_post and increment it's views.
+    requested_post = Post.objects.get(title=title)  
+    requested_post.page_views = requested_post.page_views + 1
+    requested_post.save()
+    # Now page views have been incremented.
+    context = {
+        'posts':posts, 
+        'requested_post': requested_post,
+    }
+    return render(request, 'index.html', context)
+</code></pre>
+    
+   
+    
+{% block 'js' %}
+<script>  
+$('#getmyip').click(function(e){
+    $.ajax({
+        url: 'https://httpbin.org/ip',
+        success: function(data){
+            $('#myip').html(data.origin)
+        }
+    })
+})
+ 
+</script>
+{% endblock 'js' %}
+{% endblock 'engine' %}

@@ -1,0 +1,101 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}  
+  
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that. <br><br>
+    <b>To use Django ORM in a standalone script out of Django you must have following Direcctory Structure.</b>
+</p>
+
+<h4 class="grey-text text-darken-3"><b>Folder Structure</b></h4>
+    
+<!-- CODE -->
+<pre><code class="language-python">project/
+    ├── __init__.py
+    ├── asgi.py
+    ├── settings.py
+    ├── urls.py
+    └── wsgi.py
+app/
+    ├── __init__.py
+    ├── admin.py
+    ├── aps.py
+    ├── models.py
+    ├── urls.py
+    └── views.py
+# Database file
+db.sqlite3
+# Standalone Script
+main.py
+# This will must be in the folder where main.py/Standalone script lies
+manage.py
+</code></pre> 
+
+ 
+<p>All the work is done by defining a bit of settings in main.py </p>    
+
+<h4 class="grey-text text-darken-3"><b>Models.py</b></h4>
+<p>
+    In models.py we define our model.
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from django.db import models
+# Create your models here.
+class Person(models.Model):
+    name = models.CharField(max_length=100)
+</code></pre>
+
+<pre><code class="language-python">> py manage.py makemigrations</code></pre>
+<pre><code class="language-python">> py manage.py migrate</code></pre>
+
+  
+<h4 class="grey-text text-darken-3"><b>Main.py</b></h4>
+<p>
+    This file contains a bit of settings to use Django ORM in a standalone script out of Django.
+    <!-- <span class="blue-text"><b>Note: </b></span> <b>stateanalyzer function</b> will take <b>request, title of post
+    and time limit in seconds</b> as arguments. -->
+</p>  
+
+<!-- CODE -->
+<pre><code class="language-python">import os,django
+from django.core.wsgi import get_wsgi_application
+# simple settings
+os.environ['DJANGO_SETTINGS_MODULE'] = 'project.settings'
+application = get_wsgi_application()
+django.setup()
+
+from app.models import Person
+p1 = Person(name="person_1")
+p1.save()
+print(Person.objects.all())
+</code></pre>     
+
+        
+
+ 
+{% block 'js' %}
+<script>   
+$('#sendrequest').click(function(e){
+    
+  e.preventDefault()
+  post = $('#page option:selected').text()
+  ip = $('#ip option:selected').text()
+
+  $.ajax({
+    url: `test/post/${ip}/${post}`,
+    success: function(data){
+      $('#respost').html(data.title)
+      $('#resviews').html(data.views)
+      
+    }
+  })
+})
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems, {FormSelect:true});
+  });
+</script>
+{% endblock 'js' %}
+{% endblock 'engine' %}

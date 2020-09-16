@@ -1,0 +1,125 @@
+ 
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that.
+</p>
+<h4 class="grey-text text-darken-3"><b>Html File</b></h4></p>
+<!-- CODE -->
+<pre><code class="language-markup">&lt;form action="#" method="post"&gt;
+    &lt;input type="text" name="" id="email"&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+&lt;!--To display error--&gt;
+&lt;p id="availability"&gt; &lt;/p&gt;
+&lt;script&gt;
+// Here ajax will be implemented
+&lt;/script&gt;</code></pre> 
+ 
+        
+<h4 class="grey-text text-darken-3"><b>Implementing Ajax</b></h4>
+<p>
+    To get instant email availability we will user <b>keyup method</b> which is called when user leaves 
+    a keyborad key after pressing. And an Ajax call with url <b>verifyemail/${this.value}</b> whick is
+    triggered on each <b>keyup</b> method.
+</p> 
+<!-- CODE -->    
+<pre ><code class="language-js">$('#email').keyup(function(e){
+$.ajax({ 
+    url: `verifyemail/${this.value}`,
+    success: function(result){
+        if(result.availability != ''){
+            $('#availability').html(result.availability)
+        }
+        else{
+            $('#availability').empty()
+        }
+    }
+})
+})</code></pre> 
+        
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    This file contains the url <b>verifyemail/&lt;str:email&gt;</b> which is triggered by Ajax 
+    and call <b>getcities</b> from myapp.views
+</p> 
+<!-- CODE --> 
+<pre><code class="language-python">from myapp import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Follwing url is triggered when we call verifyemail/${this.value} from Ajax
+    path('verifyemail/&lt;str:email&gt;', verifyemail, name='verifyemail'),
+]</code></pre>
+        
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+  Views.py contains the <b>verifyemail function for</b> which accepts an argument <b>email</b>
+  provided by user
+</p> 
+        
+<!-- CODE -->
+<pre><code class="language-python">from django.http import JsonResponse
+def verifyemail(request, email):
+
+    # If you want to load emails from database then here is the cdoe :)
+    # ==>NOTE: your model must has an email field.
+    # entries = MODEL_NAME.objects.all()
+    # all_emails = [entry.email for entry in entries]
+
+    all_emails = ['asad@gmail.com','mashood@gmail.com', 'saad@gmail.com',] 
+    if email.lower() in all_emails:
+        availability = 'Email alredy exists'
+    else:
+        availability = ''
+    return JsonResponse({'availability':availability})
+</code></pre>
+        
+
+<!-- SECTION - LIVE DEMO -->
+<h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+<p>
+    If you try any of three emails listed above in the code then you will get an error.
+</p> 
+<div class="z-depth-2" style="padding: 20px;border-radius: 10px;">
+<form>
+    <div class="input-field">
+        <input id="email" type="text" class="validate">
+        <label for="email">Email</label>
+    </div>
+    <p class="red-text" id="availability"></p>
+    <div class="input-field">
+        <input id="password" type="text" class="validate">
+        <label for="password">Password</label>
+    </div>
+    <a class="btn" style="text-transform: none;">Submit</a>
+</form>
+</div> 
+
+
+
+
+{% block 'js' %}
+<script>  
+$('#email').keyup(function(e){
+    $.ajax({ 
+        url: `verifyemail/${this.value}`,
+        success: function(result){
+            if(result.availability != ''){
+                $('#availability').html(result.availability)
+            }
+            else{
+                $('#availability').empty()
+            }
+        }
+    })
+})
+</script>
+
+
+{% endblock 'js' %} 
+{% endblock 'engine'%}

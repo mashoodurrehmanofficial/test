@@ -1,0 +1,201 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that.
+</p>
+<h4 class="grey-text text-darken-3"><b>Basic Logic</b></h4>
+<p>
+    The logic behind <b>Dynamic auto-complete input box</b> is that we will get data from
+    server <b>whenever a user type or changes input box</b> and display that data in auto-complete input box .
+</p>
+
+<h4 class="grey-text text-darken-3"><b>Html File</b></h4>
+<p>
+    For <b>Auto-complete input box</b> we will be using <b>1. materialize.css 2. materialize.js</b>.
+    The use of <b>jquery.js is optional </b> if you want to use vanilla javascript. When we will 
+    change value of input box then suggestions will be loaded automatically. <br>
+    <span class="blue-text"><b>Note: </b></span> We will be fetching data from a <b>model named
+    Countries</b> but you can use this logic in the way you like.<br>
+</p>
+        
+<!-- CODE -->
+<pre><code class="language-markup">&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"&gt; 
+    &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"&gt; 
+    &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"&gt;&lt;/script&gt;
+    &lt;script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"&gt;&lt;/script&gt;
+    &lt;title&gt; Pythonmafia&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!-- This is the default layout by materialize.css for auto-complete input box --&gt; 
+
+    &lt;input type="text" id="autocomplete-input" class="autocomplete input-field"&gt;
+    &lt;label for="autocomplete-input"&gt;Select Country&lt;/label&gt;
+    
+&lt;script&gt;
+// This all is default provided by materialize.js
+countries = {}  
+
+// Here we are going to implement Ajax call.
+// At back-end we have two functions index and fetch. 
+// Index for html file and fetch for fetching data.
+// Ajax is going to use fetch/&lt;str:country&gt; function and we will return countries from our model.
+$('#autocomplete-input').on('keydown',function(e){ 
+    $.ajax({
+      url: `fetch/${this.value}`,
+      success: function(data){ 
+        // This will append the countries container to be appeared in suggestion box
+        for(x=0;x&lt;data.data.length;x++){
+          options[data.data[x]] = false
+        }
+    }
+})
+
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.autocomplete');
+    var instances = M.Autocomplete.init(elems, { Autocomplete:true, data:countries});
+});
+&lt;/script&gt; 
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>    
+
+
+  
+<h4 class="grey-text text-darken-3"><b>Models.py</b></h4>
+<p>
+    We will be fetching data from a <b>model named Countries</b> but you can use this logic in the way you like.
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from django.db import models  
+class Countries(models.Model):
+    name = models.CharField(max_length=100) 
+    def __str__(self):
+    return self.name
+</code></pre>
+
+
+
+
+<p>
+    In your <b>Terminal</b> run these commands to make migrations and store data in your Post model.
+</p>    
+<pre><code class="language-python">> py manage.py makemigrations</code></pre>
+<pre><code class="language-python">> py manage.py migrate</code></pre>
+<pre><code class="language-python">> py manage.py shell</code></pre>
+<p>
+    I am using <b>SHELL</b> for storing data. You can use any approach you want.
+</p>  
+
+<pre><code class="language-python">> from myapp.models import Post
+> Post(name='Afghanistan').save()
+> Post(name='Åland Islands').save()
+> Post(name='Albania').save()
+> Post(name='Algeria').save() 
+> . . . . . . . . . . . . 
+> . . . . . . . . . . . . 
+> . . . . . . . . . . . . 
+> . . . . . . . . . . . . 
+</code></pre>
+
+<p>Now we have successfully stored records in our Countries model.</p> 
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    Now we will define url patterns and get an <b>HTML View </b> in response to index function 
+    and <b>JsonResponse fron fetch/&lt;str:query&gt;</b> in view.py 
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from myapp import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Follwing url is triggered at localhost:8000/
+    path('', views.index, name='index')
+    # Follwing url is triggered at localhost:8000/fetch/query_str
+    path('fetch/&lt;str:query&gt;', views.fetch, name='fetch')
+]
+</code></pre>
+        
+        
+        
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+    Now in this <b>index view function</b> we will provide items for auto-complete input box
+    to be appeared in suggestion.
+</p> 
+<div class="z-depth-1 grey lighten-3" style="padding: 5px 10px;border-left: 6px solid #2196f3;">
+    <p class="p2">Here you can pass data into html whatever you want either from database or static data.</p>
+</div>
+<p>
+    As we are using a model then use following code .
+    
+</p> 
+        
+<!-- CODE -->
+<pre><code class="language-python">from django.http import JsonResponse,
+    
+def index(request):   
+    return render(request, 'index.html')  
+def fetch(request, query):
+    data = [x.name for x in Post.objects.filter(name__startswith=query)]  
+    return JsonResponse({'data':data})
+</code></pre>
+                <p>Else if you are using static data then use this. </p>
+        
+<pre><code class="language-python">def fetch(request, query): 
+    data = [item1, item2, item3, .......]
+    # For case-insensitive
+    data = [x for x in data if x.lower().startswith(query.lower())] 
+    return JsonResponse({'data':data})
+</code></pre>
+
+
+ 
+
+
+
+ 
+<!-- SECTION LIVE DEMO -->
+<h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+<p>Type name of any country in the world to chech the results.</p>  
+<p>Type atleast two letters.</p>
+<div class="grey lighten-2 " style="padding: 20px;border-radius: 10px;height: 500px;">
+    
+    <div class="input-field"> 
+        <input type="text" id="autocomplete-input" class="autocomplete">
+        <label for="autocomplete-input">Select Country</label>
+        </div>
+</div> 
+ 
+
+
+
+{% block 'js' %}
+<script>    
+options = {} 
+$('#autocomplete-input').on('keyup',function(e){ 
+  $.ajax({
+    url: `realtimeautocompletebox/${this.value}`,
+    success: function(data){ 
+      for(x=0;x<data.data.length;x++){
+        options[data.data[x]] = 0 
+      }
+      
+    }
+  }) 
+})
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.autocomplete');
+    var instances = M.Autocomplete.init(elems, { 
+        Autocomplete:true, 
+        data:options,
+        limit:10,
+        });
+  });
+</script>
+{% endblock 'js' %} 
+{% endblock 'engine'%}

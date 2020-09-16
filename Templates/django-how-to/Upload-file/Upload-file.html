@@ -1,0 +1,123 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+  
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that. <b>Let us Consider we have ...</b>
+</p> 
+<h4 class="grey-text text-darken-3"><b>Index.html</b></h4>
+<p>
+    This file contains the form which wiil be used to uplad a file. <br>
+    <span class="blue-text"><b>Note: </b></span> Don't forget to add
+    <b>enctype="multipart/form-data" </b> and <b>{ % csrf_token % }</b>
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-markup">&lt;form action="/" method="post" enctype="multipart/form-data"&gt;{ <p>% csrf_token %</p> }
+Name: &lt;input type="text" name="name" id=""&gt;
+File: &lt;input type="text" name="file" id=""&gt;
+&lt;button type="submit"&gt;Upload&lt;/button&gt;
+&lt;/form&gt;
+</code></pre> 
+    
+
+<h4 class="grey-text text-darken-3"><b>Settings.py</b></h4>
+<p>
+    At the end of settings.py we are specifying URL and location of ROOT Folder for storing files.
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+</code></pre>
+     
+<h4 class="grey-text text-darken-3"><b>Project > urls.py</b></h4>
+<p>
+    In this file we will be importing two additional django-modules. After that we will 
+    append urlpatterns like below.
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">from django.contrib import admin
+from django.urls import path,include  
+from django.conf import settings
+from django.conf.urls.static import static 
+urlpatterns = [
+path('admin/', admin.site.urls),   
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+</code></pre>
+     
+
+<h4 class="grey-text text-darken-3"><b>App > urls.py</b></h4>
+<p>
+    In this file we will be importing two additional django-modules. After that we will 
+    append urlpatterns like below.
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">from django.urls import path 
+from .views import *
+urlpatterns = [
+path('', index, name='index'),
+]
+</code></pre> 
+    
+<h4 class="grey-text text-darken-3"><b>Models.py</b></h4>
+<p>
+    To upload files we always need a model. File is not directly stored in database but it is stored
+    at <b>file system </b>. Database is used to just store the file path or related META data. <br>
+    <span class="blue-text"><b>Note: </b></span> If you want to store files in sub-folder then
+    use <b>upload_to='<i>path</i>'</b><br>
+    <span class="blue-text"><b>Note: </b></span> If you want to upload only images the use <b>models.ImageField</b>
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">from django.db import models  
+class Post(models.Model):
+name = models.CharField(max_length=100)
+file = models.FileField(upload_to='files/',blank=True)   
+def __str__(self):
+    return self.name
+</code></pre>
+    
+<!-- CODE -->    
+<pre><code class="language-python">> py manage.py makemigrations</code></pre>
+<pre><code class="language-python">> py manage.py migrate</code></pre>
+ 
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+    Views.py contains the view function <b>index</b> which will be called at <b>localhost:8000</b> 
+    <span class="blue-text"><b>Note: </b></span> File is accessed by using <b>request.FILES['file']</b><br><br>
+    <b class="blue-text">file</b> = request.FILES['file'] <br>
+    <b class="blue-text">name</b> = file.name <br>
+    <b class="blue-text">extension</b> = file.name.split('.')[-1] <br>
+    <b class="blue-text">size</b> = file.size
+    
+</p> 
+             
+
+<!-- CODE -->        
+<pre><code class="language-python">def index(request):  
+    if request.method=='POST' and request.FILES['file']:
+        Post(name=request.POST['name'], file=request.FILES['file']).save()
+        return render(request, 'index.html')
+    return render(request, 'index.html')
+</code></pre>
+
+        
+{% block 'js' %}
+<script>  
+$('#getmyip').click(function(e){
+    $.ajax({
+        url: 'https://httpbin.org/ip',
+        success: function(data){
+            $('#myip').html(data.origin)
+        }
+    })
+})
+ 
+</script>
+{% endblock 'js' %}
+{% endblock 'engine' %}

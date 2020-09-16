@@ -1,0 +1,69 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}  
+ 
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that. <b>Let us Consider we have ...</b>
+</p> 
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    This file contains the url <b>myip/</b> which is triggered by Ajax 
+    and call <b>myip</b> from myapp.views
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from myapp import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Follwing url is triggered when we call myip/ from browser or somewhere else.
+    path('myip/', views.myip, name='myip')
+]
+</code></pre>
+        
+<!-- CODE -->
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+    Views.py contains the <b>myip function</b>. request.META contains meta information 
+    of visitor like USER_AGENT or IP ADDRESS To get IP ADDRESS we use 
+    <b>request.META.get('HTTP_X_FORWARDED_FOR')</b><br>
+    <span class="blue-text"><b>Note: </b></span>
+    This method is only for Production mode and it will give <b>127.0.0.0</b> for your local server.
+</p> 
+        
+<!-- CODE -->             
+<pre><code class="language-python">from django.http import JsonResponse
+def myip(request): 
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for: 
+        ip = x_forwarded_for.split(',')[0]
+    else: 
+        ip = request.META.get('REMOTE_ADDR')
+    return JsonResponse({'yourip':ip})
+</code></pre>
+
+<p>Use request.META.get('HTTP_USER_AGENT') to get USER_AGENT</p>
+
+<!-- SECTION LIVE DEMO -->
+<h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+<button id="getmyip" style="text-transform: none;border-radius: 30px;" class="btn white grey-text text-darken-2">
+    <b>My Ip Address</b>   
+</button>
+<h4 id="myip"></h4>
+           
+
+ 
+{% block 'js' %}
+<script>  
+$('#getmyip').click(function(e){
+    $.ajax({
+        url: 'https://httpbin.org/ip',
+        success: function(data){
+            $('#myip').html(data.origin)
+        }
+    })
+})
+ 
+</script>
+{% endblock 'js' %}
+{% endblock 'engine' %}

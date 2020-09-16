@@ -1,0 +1,56 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that.
+</p> 
+
+
+<h4 class="grey-text text-darken-3"><b>Method 1</b></h4>
+<p>
+    First of all we have to import a django module <b>apps</b> form <b>django.apps</b>. Then we have
+    to call <b>app.get_models()</b>. This wiil give a <b>dictionary</b>
+    containing <b>model_name</b> & <b>model_class</b>.
+    <div class="z-depth-1 grey lighten-3" style="padding: 5px 10px;border-left: 6px solid #2196f3;">
+        <p class="p2">All database's operations can be performed over model_class</p>
+    </div>
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from django.apps import apps
+for model in apps.get_models():
+    model_name = model.__name__
+    model_class = model
+</code></pre>
+         <p><b># Using list compressions</b></p>
+<pre><code class="language-python">all_models = [model.__name__ for model in apps.get_models()]
+</code></pre>
+        
+      
+<h4 class="grey-text text-darken-3"><b>Method 2</b></h4>
+<p>
+    This method is much similar to fisrt one but the difference is that it also 
+    <b>attaches app_name to model_name</b>. 
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from django.apps import apps
+for app in apps.get_app_configs():
+    for model in app.get_models():
+        model_name  = model._meta.db_table
+</code></pre>
+         <p><b># Using list compressions</b></p>
+<pre><code class="language-python">[model._meta.db_table for app in apps.get_app_configs() for model in app.get_models()]
+</code></pre>
+ 
+  
+        <!-- [model.__name__ for model in apps.get_models()] -->
+        <!-- [ m._meta.db_table for c in apps.get_app_configs() for m in c.get_models() ] -->
+ 
+{% block 'js' %}
+<script>  
+</script>
+{% endblock 'js' %}
+{% endblock 'engine' %}

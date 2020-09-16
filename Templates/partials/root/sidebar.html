@@ -1,0 +1,48 @@
+<ul id="slide-out" class="sidenav sidenav-fixed " style="width: 250px;margin-top: 65px;padding-bottom: 11 0px;"> 
+    <a href="/django-ajax"><h4 style="text-align: center;margin-bottom: 5px;margin: 11px  0px;">{{app_name}}</h4></a>
+    
+    {% for post in posts %}
+        {% if page_title == post.short_name %}
+        <a  id="sidebaritems" style="padding: 0%;padding-left: 10px;display: block;font-size: 15px;padding: 9px 8px 9px 10px;background-color:rgb(4, 160, 4);color:rgb(255, 255, 255)" href="{{post.url}}">{{post.short_name}}</a>
+
+        {% else %}
+
+        <a  class="sidebaritems" id="sidebaritems" style="padding: 0%;padding-left: 10px;display: block;color: rgb(65, 65, 65);font-size: 15px;background-color: rgb(253, 253, 253);padding: 9px 8px 9px 10px;" href="{{post.url}}">{{post.short_name}}</a>
+        <div class="divider" style="margin-top: 0px !important;"></div>   
+
+        {% endif %}
+        
+        {% endfor %} 
+<!--   <li class="no-padding">
+        <ul class="collapsible collapsible-accordion">
+          <li>
+            <a class="collapsible-header">Dropdown<i class="material-icons">arrow_drop_down</i></a>
+            <div class="collapsible-body">
+              <ul>
+                <li><a href="#!">First</a></li>
+                <li><a href="#!">Second</a></li>
+                <li><a href="#!">Third</a></li>
+                <li><a href="#!">Fourth</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </li> -->
+  </ul>
+  <!-- ACTIVATOR -->
+  <!-- <a style="margin: 10px 10px ;display: none;" data-target="slide-out" class="sub_sidebar_activator sidenav-trigger btn-floating  waves-effect waves-light green accent-4"><i class="material-icons">menu</i></a> -->
+
+
+{% block 'js' %}
+<script>
+$(document).ready(function(){
+ $('sidebaritems').click(function(){
+  sessionStorage["scrollPosition"] = $('.sidenav').scrollTop();
+ });
+ $('sidenav').scrollTop(sessionStorage["scrollPosition"]);
+   sessionStorage.clear();
+});
+
+</script>
+{% endblock 'js' %}
+  

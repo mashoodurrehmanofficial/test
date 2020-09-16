@@ -1,0 +1,122 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that.
+</p>
+<h4 class="grey-text text-darken-3"><b>Html File</b></h4>
+<p>
+    Html file has two Select blocks and an jquery Ajax block.
+</p>
+        
+<!-- CODE   -->
+<pre><code class="language-markup">&lt;!-- Selection block for Countries --&gt;  
+&lt;select id="country"&gt;
+    &lt;option value="" disabled selected&gt;Select your Country&lt;/option&gt;
+    &lt;option  value="China"&gt;China&lt;/option&gt;
+    &lt;option  value="England"&gt;England&lt;/option&gt;
+    &lt;option  value="Germany"&gt;Germany&lt;/option&gt;
+&lt;/select&gt;
+&lt;!-- Selection block for Citties --&gt;  
+&lt;select id="city"&gt;
+    &lt;option value="" disabled selected&gt;Select your City&lt;/option&gt;
+&lt;/select&gt;
+&lt;script&gt; 
+
+&lt;!-- Here Ajax will take place --&gt; 
+
+&lt;/script&gt;</code></pre>   
+        
+<h4 class="grey-text text-darken-3"><b>Implementing Ajax</b></h4>
+<p>
+    When we change the country option then the url <b> getcities/${this.value} </b> is triggered
+</p> 
+
+<!-- CODE   -->
+<pre ><code class="language-js">$('#country').click(function(e){
+    $.ajax({
+        url: `getcities/${this.value}`,
+        success: function(data){
+            $('#city').empty()
+            $('#city').append(`&lt;option value="" disabled selected&gt;Select your City&lt;/option&gt;`)
+            for(y=0; y&lt;data.cities.length; y++){
+                $('#city').append(`&lt;option value="${data.cities[y]}"&gt; ${data.cities[y]} &lt;/option&gt;`)
+            }
+        }
+    })
+})</code></pre> 
+        
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    This file contains the url <b>getcities/&lt;str:country&gt;</b> which is triggered by Ajax 
+    and call <b>getcities</b> from myapp.views
+</p> 
+
+<!-- CODE   -->
+<pre><code class="language-python">from myapp import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Follwing url is triggered when we call getcities/${this.value} from Ajax
+    path('getcities/&lt;str:country&gt;', views.getcities, name='getcities')
+]
+</code></pre>
+         
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+    Views.py contains the <b>getcities function</b> which accepts an argument <b>country</b>
+    provided by user
+</p> 
+        
+<!-- CODE   -->
+<pre><code class="language-python">from django.http import JsonResponse
+def getcities(request, country):
+    cities = {
+        'China':['Beijing','Shanghai','Wuhan'],
+        'England': ['London','Manchester','Oxford'],
+        'Germany':['Berlin','Frankhart','Munich'],
+    }  
+    return JsonResponse({'cities':cities[country]})
+</code></pre>
+        
+<!-- SECTION LIVE DEMO -->
+    <h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+    <div class="blue " style="padding: 20px;border-radius: 10px;">
+        
+        <div style="background-color: rgb(209, 209, 209); width: 150px;">
+            <select id="country" style="all: unset;" >
+                <option value="" disabled selected>Select your Country</option>
+                <option  value="China">China</option>
+                <option  value="England">England</option>
+                <option  value="Germany">Germany</option>
+            </select>
+        </div><br><br><br>
+        <div style="background-color: rgb(209, 209, 209); width: 150px;">
+            <select id="city" style="all: unset;">
+                <option value="" disabled selected>Select your City</option>
+            </select> 
+        </div>
+    </div> 
+
+ 
+ 
+
+{% block 'js' %}
+<script>  
+$('#country').click(function(e){
+    $.ajax({
+        url: `getcities/${this.value}`,
+        success: function(data){
+            $('#city').empty()
+            // $('#city').append(`<option value="" disabled selected>Select your City</option>`)
+            for(y=0; y<data.cities.length; y++){
+                $('#city').append(`<option  value="${data.cities[y]}">   ${data.cities[y]}    </option>`)
+            }
+        }
+    })
+})
+ 
+</script>
+{% endblock 'js' %}
+{% endblock 'engine'%}

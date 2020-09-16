@@ -1,0 +1,172 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that.
+</p>
+<h4 class="grey-text text-darken-3"><b>Basic Logic</b></h4>
+<p>
+    The logic behind <b>static auto-complete input box</b> is that we will get data from
+    server once and display that data in auto-complete input box .
+</p>
+
+<h4 class="grey-text text-darken-3"><b>Html File</b></h4>
+<p>
+    For <b>Auto-complete input box</b> we will be using <b>1. materialize.css 2. materialize.js</b>.
+    The use of <b>jquery.js is optional </b> if you want to use vanilla javascript.
+</p>
+        
+<!-- CODE  -->
+<pre><code class="language-markup">&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"&gt; 
+    &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"&gt; 
+    &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"&gt;&lt;/script&gt;
+    &lt;script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"&gt;&lt;/script&gt;
+    &lt;title&gt; Pythonmafia&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!-- This is the default layout by materialize.css for auto-complete input box --&gt; 
+
+    &lt;input type="text" id="autocomplete-input" class="autocomplete input-field"&gt;
+    &lt;label for="autocomplete-input"&gt;Programming language&lt;/label&gt;
+    
+&lt;script&gt;
+// This all is default provided by materialize.js
+    data = {
+        "ASP.net": false,
+        "Basic": false,
+        "C++": false
+        }  
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.autocomplete');
+        var instances = M.Autocomplete.init(elems, { Autocomplete:true, data});
+    });
+&lt;/script&gt; 
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>    
+  
+        
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    Now we will define a url pattern and get an <b>HTML View </b> in response to index function in view.py 
+</p> 
+      
+<!-- CODE  -->
+<pre><code class="language-python">from myapp import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Follwing url is triggered at localhost:8000/index
+    path('index/', views.index, name='index')
+]
+</code></pre>
+         
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+    Now in this <b>index view function</b> we will provide items for auto-complete input box
+    to be appeared in suggestion.
+</p> 
+<div class="z-depth-1 grey lighten-3" style="padding: 5px 10px;border-left: 6px solid #2196f3;">
+    <p class="p2">Here you can pass data into html whatever you want either from database or static data.</p>
+</div>
+<p>
+    Let's consider <b>you have a model</b> and it contains a <b>field with name programming_language</b>
+    and you want to display them in auto-complete input box then use the following code.
+    
+</p> 
+        
+<!-- CODE  -->   
+<pre><code class="language-python">def index(request): 
+    data = [item.programming_language for item in model_name.objects.all() ]
+    return render(request, 'index.html', {'data':data}) 
+</code></pre>
+                <p>Here we are using static data fro explanation.</p>
+        
+<pre><code class="language-python">def index(request): 
+    data = ['python','php','pascal','java', 'javascript']
+    return render(request, 'index.html', {'data':data}) 
+</code></pre>
+ 
+<h4 class="grey-text text-darken-3"><b>Now back to Html File</b></h4>
+<p>
+    We will hide the data from user and <b>populate it by using javascript/jquery</b> so that it may be appeared in suggestion.
+</p>
+
+<!-- CODE  -->
+<pre><code class="language-markup">
+&lt;input type="text" id="autocomplete-input" class="autocomplete input-field"&gt;
+&lt;label for="autocomplete-input"&gt;Programming language&lt;/label&gt;
+
+&lt;!-- This is data obtained from index view function and we are hiding that--&gt;
+&lt;div style="display: none;"&gt;
+    &#123;% for x in data %&#125;
+        &lt;p id="item"&gt;&#123;&#123;x&#125;&#125;&lt;/p&gt;
+    &#123;% endfor %&#125;&lt;/div&gt;
+
+&lt;script&gt;
+// This all is default provided by materialize.js
+data = {
+"ASP.net": false,
+"Basic": false,
+"C++": false
+}  
+// This will append data object automatically when window will load
+$(window).on('load',function(e){
+    $('p[id="item"]').each(function(index){
+        data[this.innerHTML] = false
+    })
+})
+document.addEventListener('DOMContentLoaded', function() {
+var elems = document.querySelectorAll('.autocomplete');
+var instances = M.Autocomplete.init(elems, { Autocomplete:true, data});
+});
+&lt;/script&gt;</code></pre>    
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        <!-- SECTION LIVE DEMO -->
+                <h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+                <p>Type name of language that starts with p or j that we passed to index view function to chech the results.</p>
+                <div class="grey lighten-2 " style="padding: 20px;border-radius: 10px;">
+                    
+                    <div class="input-field"> 
+                        <input type="text" id="autocomplete-input" class="autocomplete">
+                        <label for="autocomplete-input">Programming language</label>
+                      </div>
+                </div>
+          
+ 
+
+
+
+{% block 'js' %}
+<script>    
+data = {
+    "ASP.net": false,
+    "Basic": false,
+    "C++": false,
+    'python':false,
+    'php':false,
+    'pascal':false,
+    'java':false, 
+    'javascript':false
+    }  
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.autocomplete');
+    var instances = M.Autocomplete.init(elems, { Autocomplete:true, data});
+  });
+</script>
+{% endblock 'js' %}
+{% endblock 'engine' %}

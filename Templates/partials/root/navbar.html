@@ -1,0 +1,128 @@
+{% block 'mainbody' %}
+<div class="navbar-fixed" style="position: relative;"> 
+
+  <a style="margin: 10px 10px ;display: none;position: absolute;top: 10;right:0" data-target="slide-out" class="sub_sidebar_activator sidenav-trigger btn-floating  waves-effect waves-light green accent-4"><i class="material-icons">menu</i></a>
+
+  <div id="search" class="search grey lighten-4" style="display: none;width: 100%;top: 0;height: inherit;position: absolute;z-index: 1;box-sizing: border-box;padding: 15px 0px 0px 50px;transition: display 2s;">
+    <form action="#" method="#">
+      <input id="focus"  placeholder="Search Tutorials or just type Tag name like Django or Ajax" type="text" style="all:unset !important;width:80% !important;font-size: 25px !important;" autofocus> 
+    <a onclick="document.getElementById('search').style.display='none'" style="float: right;margin-right: 20px;cursor: pointer;" ><i style="border-left:1px solid grey;font-size:40px;padding-left: 5px;" class="material-icons">clear</i></a>
+    </form>
+  </div>
+
+
+
+  <nav  class="green ">
+      <div class="nav-wrapper">
+          <a href="/" class="brand-logo" style="padding-left: 10px;">Codingmsala</a>
+          <!-- <a href="/" class="brand-logo"><i style="font-size: 50px;" class="large material-icons">network_check</i></a> -->
+          <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+          <ul class="right hide-on-med-and-down">
+              <!-- <li><a href="#">Courses</a></li> -->
+               
+              <!-- <li><a class="dropdown-trigger" href="#!" data-target="x">CSS3<i class="material-icons right">arrow_drop_down</i></a></li> -->
+              <!-- <li><a class="dropdown-trigger" href="#!" data-target="x">Widegts<i class="material-icons right">arrow_drop_down</i></a></li> -->
+              <!-- <li><a class="dropdown-trigger" href="#!" data-target="x">Javascript<i class="material-icons right">arrow_drop_down</i></a></li> -->
+              <!-- <li><a class="dropdown-trigger" href="#!" data-target="python">Python<i class="material-icons right">arrow_drop_down</i></a></li> -->
+              <li><a class="dropdown-trigger" href="#!" data-target="django">Django<i class="material-icons right">arrow_drop_down</i></a></li>
+              <li><a href="#">About</a></li>
+              <li onclick="document.getElementById('search').style.display='block';document.getElementById('focus').focus()" style="margin-right: 10px;"><a href="#"><i class="material-icons" >search</i></a></li>
+          </ul>
+      </div>
+    </nav>
+</div>
+
+
+<!-- PYTHON -->
+<ul  id="python" class="dropdown-content" style="min-width: 200px;">
+  <li><a href="{% url 'django-ajax' %}">Python How To</a></li>
+  <li class="divider"></li>
+  <li><a href="{% url 'django-how-to' %}">Cyber Stuff</a></li>
+</ul>
+<!--  DJANGO -->
+<ul  id="django" class="dropdown-content" style="min-width: 200px;">
+  <li><a href="{% url 'django-ajax' %}">Django + Ajax </a></li>
+  <li class="divider"></li>
+  <li><a href="{% url 'django-how-to' %}">Django How To</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+<ul style="width: 250px;" class="sidenav" id="mobile-demo">
+  <li style="padding: 0px;margin: 0px;"><div class="user-view">
+    <div class="background">
+      <img style="width: 200px;width: 250px;" src="https://news.efinancialcareers.com/binaries/content/gallery/efinancial-careers/articles/2019/03/programmer.jpg">
+    </div>
+    <a href="#user"><img class="circle" src="https://icon-library.com/images/icon-programmer/icon-programmer-14.jpg"></a>
+    <a href="#name" class="white-text name">Mashood ur Rehman</a>
+    <a href="#email" class="white-text email">mashoodurrehmanofficial@gmail.com</a>
+  </div></li>
+  <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+  <li><a href="#!">Second Link</a></li>
+  <li><div class="divider"></div></li>
+  <li><a class="subheader">Subheader</a></li>
+  <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+</ul>
+ 
+
+
+
+
+
+
+
+
+
+
+{% endblock 'mainbody' %}
+
+
+{% block 'js' %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, {
+      'Sidenav':true,
+      
+    });
+    })
+</script>
+{% endblock 'js' %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,108 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that.
+</p>
+<h4 class="grey-text text-darken-3"><b>Html File</b></h4>
+<p>
+    Html file has a loader button with <b>id="loader"</b> and a <b>p tag</b>
+    for handling loaded data and an jquery Ajax block.
+</p>
+        
+<!-- CODE  -->
+<pre><code class="language-markup">&lt;p id="number"&gt; &lt;/p&gt;
+&lt;button id="loader"&gt; Load More &lt;/button&gt;
+&lt;script&gt; 
+
+&lt;!-- Here Ajax will take place --&gt; 
+
+&lt;/script&gt;</code></pre>  
+        
+        
+<h4 class="grey-text text-darken-3"><b>Implementing Ajax</b></h4>
+<p>
+    On clicking the button innerHTML of button will be changed to <b>Loading ...</b> and
+    an Ajax call with url <b>loadmore/</b> is triggered. The response is an array of random 
+    numbers but can be anythong you want
+</p> 
+            
+<!-- CODE  -->
+<pre ><code class="language-js">$('#loader').click(function(e){ 
+    $('#loader').html('&lt;b&lt;Loading ...&lt;/b&gt;')
+    $.ajax({
+        url: 'loadmore/',
+        success: function(data){   
+            $('#loader').html('Load More')
+            for(x=0;x&lt;data.numbers.length;x++){
+                $('#text').append(`${data.numbers[x]}&lt;br&gt;`)
+            }
+        }
+    })
+})
+</code></pre> 
+        
+<h4 class="grey-text text-darken-3"><b>Urls.py</b></h4>
+<p>
+    This file contains the url <b>loadmore/</b> which is triggered by Ajax 
+    and call <b>loadmore</b> from myapp.views
+</p> 
+
+<!-- CODE  -->
+<pre><code class="language-python">from myapp import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Follwing url is triggered when we call loadmore/ from Ajax
+    path('loadmore/', views.loadmore, name='loadmore')
+]
+</code></pre>
+        
+        
+        
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p>
+    Views.py contains the <b>loadmore function</b>  
+</p> 
+        
+<!-- CODE  -->   
+<pre><code class="language-python">from django.http import JsonResponse
+def loadmore(request):
+
+    # If you want to load data from database then here is the cdoe :)
+    # data = MODEL_NAME.objects.all()
+    
+    data = [random.randint(1,100000000000000) for _ in range(10)]
+    return JsonResponse({'numbers':data})
+</code></pre>
+        
+
+<!-- SECTION LIVE DEMO -->
+<h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+<h5 id="text"></h5> 
+<button id="loader" style="text-transform: none;border-radius: 30px;" class="btn white grey-text text-darken-2">
+Load More  
+</button> 
+
+ 
+
+
+
+{% block 'js' %}
+<script>   
+$('#loader').click(function(e){ 
+    $('#loader').html('<b>Loading ...</b>')
+    $.ajax({
+        url: 'loadmore/',
+        success: function(data){   
+            $('#loader').html('Load More')
+            for(x=0;x<data.numbers.length;x++){
+                $('#text').append(`${data.numbers[x]}<br>`)
+            }
+        }
+    })
+})
+</script>
+{% endblock 'js' %}
+{% endblock 'engine'%}

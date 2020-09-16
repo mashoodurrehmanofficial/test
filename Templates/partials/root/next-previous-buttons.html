@@ -1,0 +1,17 @@
+<script>
+
+ 
+
+</script>
+
+<div class="navigation_btns">
+    
+    {% if previous %}
+        <a  href="{{previous.url}}"  id="next" class="btn blue " > Previous</a>
+    {% endif %}
+    {% if next %}
+        <a  href="{{next.url}}"  id="previous" class="btn green right"> <span style="margin: 20px 20px;">Next</span> </a>
+    {% endif %}
+         
+    
+</div> 

@@ -1,0 +1,152 @@
+{% extends 'partials/root/engine.html' %}
+{% block 'engine'%}
+
+<h4 class="grey-text text-darken-3"><b>Basic Setup</b></h4>
+<p>
+    Basic setup include creating a django project and an app as well, registering that app in INSTALLED_APPS.
+    We assume that that we have implemented that. <b>Let us Consider we have ...</b>
+</p> 
+
+<h4 class="grey-text text-darken-3"><b>Index.html</b></h4>
+<p>This file is simple for right now.</p> 
+
+<!-- CODE -->
+<pre><code class="language-markup">&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;meta http-equiv="X-UA-Compatible" content="ie=edge"&gt;
+    &lt;title&gt;Previous-next functionality buttons&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!-- Here content will be placed --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+    
+<h4 class="grey-text text-darken-3"><b>Models.py</b></h4>
+<p>
+    This file contains the model based upon which <b>previous-next functionality buttons</b> will be
+    created and data will be fetched. We are using Post Model for this.
+</p> 
+
+<!-- CODE -->
+<pre><code class="language-python">from django.db import models  
+
+class Post(models.Model):
+    name = models.CharField(max_length=100) 
+    def __str__(self):
+        return self.name
+</code></pre>
+ 
+<p>
+    In your <b>Terminal</b> run these commands to make migrations and store data in your Post model.
+</p>  
+
+<!-- CODE -->
+<pre><code class="language-python">> py manage.py makemigrations</code></pre>
+<pre><code class="language-python">> py manage.py migrate</code></pre>
+<pre><code class="language-python">> py manage.py shell</code></pre>
+
+<p>
+    I am using <b>SHELL</b> for storing data. You can use any approach you want.
+</p>  
+    
+<!-- CODE -->
+<pre><code class="language-python">> from myapp.models import Post
+> Post(name='name_1').save()
+> Post(name='name_2').save()
+> Post(name='name_3').save()
+> Post(name='name_4').save() 
+</code></pre>
+
+<p> Now we have successfully stored four records in our Post model. </p>           
+<h4 class="grey-text text-darken-3"><b>App > urls.py</b></h4>
+<p>
+    In urls.py we have two paths One for index page and second for providing previous-next functionality. 
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">from django.urls import path 
+from .views import *
+urlpatterns = [
+    path('', index, name='index'),
+    path('&lt;str:name&gt;/', fetchpost, name='fetchpost'),
+] 
+</code></pre> 
+    
+<h4 class="grey-text text-darken-3"><b>Views.py</b></h4>
+<p> 
+    Views.py contains two functions. <b>index</b> function renders <b>index.html</b> and <b>fetchpost</b>
+    function provides previous-next functionality. <br>
+    <span class="blue-text"><b>Note: </b></span> <b>fetchpost function</b> takes an argument which in this
+    case is <b>name of post</b> and it will be provided at the front-end.
+</p> 
+    
+<!-- CODE -->
+<pre><code class="language-python">def index(request):   
+    posts = Post.objects.all()
+    return render(request, 'index.html', {'posts':posts})
+
+def fetchpost(request,name):  
+    posts = Post.objects.all() 
+    current_item = posts.get(name=name)
+    # previous_item has id 1(one) less than the item which is passed to function.
+    previous_item = posts.filter(id=current_item.id-1).first()
+    # next_item has id 1(one) greater than the item which is passed to function.
+    next_item = posts.filter(id=current_item.id+1).first()
+    # NOTE ==> If no item is found it will give NONE. This all will be handled at the front-end.
+    context = {
+        'posts':posts,
+        'previous_item': previous_item,
+        'next_item':next_item, 
+    }
+    return render(request, 'index.html', context)
+</code></pre>
+      
+<h4 class="grey-text text-darken-3"><b>Index.html</b></h4>
+<p>
+    Views.py contains the view function <b>index</b> which will be called at <b>localhost:8000</b>
+    <span class="blue-text"><b>Note: </b></span> If you want to store files in sub-folder then
+    use <b>upload_to='<i>path</i>'</b><br>  
+</p> 
+             
+<!-- CODE -->      
+<pre><code class="language-markup">&lt;body&gt;
+    &lt;!-- This will display all the post links --&gt;
+    &#123;% for post in posts %&#125;
+        &lt;a  href="/&#123;&#123;post.name&#125;&#125;" &gt;&#123;&#123;post&#125;&#125;&lt;/a&gt;
+    &#123;% endfor %&#125;
+    &lt;br&gt;&lt;br&gt;
+    &lt;!-- Previous button will be displayed if there is any previous_item --&gt;
+    &#123;% if previous_item %&#125;
+        &lt;a  href="/&#123;&#123;previous_item.name&#125;&#125;"&gt;&#123;&#123;previous_item&#125;&#125;&lt;/a&gt;
+    &#123;% endif %&#125;
+
+    &lt;!-- Next button will be displayed if there is any next_item--&gt;
+    &#123;% if next_item %&#125;
+        &lt;a  href="/&#123;&#123;next_item.name&#125;&#125;" &gt;&#123;&#123;next_item&#125;&#125;&lt;/a&gt;   
+    &#123;% endif %&#125;
+&lt;/body&gt;</code></pre><br><br>
+
+<h3 class="blue-text text-darken-1"><b><u>Live Demo</u></b></h3>
+<h5 class="blue-text text-darken-1">The previous-next buttons on this site are based on this same functionality.</h5>
+ 
+    
+ 
+
+ 
+{% block 'js' %}
+<script>  
+$('#getmyip').click(function(e){
+    $.ajax({
+        url: 'https://httpbin.org/ip',
+        success: function(data){
+            $('#myip').html(data.origin)
+        }
+    })
+})
+ 
+</script>
+{% endblock 'js' %}
+{% endblock 'engine' %}
